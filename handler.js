@@ -29,6 +29,7 @@ module.exports.listarPacientes = async (event) => {
   // DynamoDB
   // Limit = LIMIT, ExclusiveStartKey = OFFSET e LastEvaluatedKey = "Numero da Pagina"
 
+  
   try {
     const queryString = {
       limit: 5,

@@ -1,0 +1,102 @@
+service: cadastro-pacientes
+
+plugins:
+  # npm i serverless-dynamodb-local --save-dev && sls dynamodb install
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  dynamodb:
+  # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+    seed:
+      domain:
+        sources:
+          - table: PACIENTES
+            sources: [./offline/migrations/pacientes-seed.json]
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  apiGateway:
+    shouldStartNameWithService: true
+
+  # you can overwrite defaults here
+  stage: prd
+  region: us-east-1
+  environment:
+   PACIENTES_TABLE: 'PACIENTES-${opt:stage, self:provider.stage}'
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+      Resource: 'arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PACIENTES_TABLE}'
+
+functions:
+  listarPacientes:
+    handler: handler.listarPacientes
+    events:
+      - http:
+          path: pacientes
+          method: get
+
+  obterPaciente:
+    handler: handler.obterPaciente
+    events:
+      - http:
+          path: pacientes/{pacienteId}
+          method: get
+
+  cadastrarPaciente:
+    handler: handler.cadastrarPaciente
+    events:
+      - http:
+          path: pacientes
+          method: post
+
+  atualizarPaciente:
+    handler: handler.atualizarPaciente
+    events:
+      - http:
+          path: pacientes/{pacienteId}
+          method: put
+          
+  excluirPaciente:
+    handler: handler.excluirPaciente
+    events:
+      - http:
+          path: pacientes/{pacienteId}
+          method: delete
+
+
+resources:
+  Resources:
+    PacientesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.PACIENTES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: paciente_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: paciente_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

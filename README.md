@@ -20,7 +20,8 @@ Desenvolver um CRUD de Pacientes usando Framework Serveless e Aws Lambda.
 
 
 # Deploy na aws
-ssl deploy
+1- Instalar a aws-cli e estar autenticado
+2- ssl deploy
 
 
 

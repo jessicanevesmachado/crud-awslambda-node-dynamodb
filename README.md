@@ -1,5 +1,5 @@
 # Objetivo
-Criar um CRUD de Pacientes Usando Framework Servless e Aws Lambda.
+Desenvolver um CRUD de Pacientes Usando Framework Servless e Aws Lambda.
 
 # Descrição
 * **Serverless.yml** é responsável por conter as informações de configuração da aplicação.
